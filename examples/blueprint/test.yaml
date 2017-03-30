@@ -7,11 +7,11 @@ imports:
     
 dsl_definitions:
   bmc_config: &bmc_config
-    user: ocid1.user.oc1..aaaaaaaams6ntkm4d4f7fy55uas2u7jtgzf3zwoebmukrovxygpuc3lef3kq
-    fingerprint: 42:15:9c:16:0e:34:bc:a3:be:83:31:fb:6c:9f:42:93
-    tenancy: ocid1.tenancy.oc1..aaaaaaaahkcwqbdj6em7q33sd4ahxxdwinwnx6pmucuh3n4nnhu3y4zn23ha
-    region: us-phoenix-1
-    key_file: ~/.ssh/bmcs_api_key
+    user: ''
+    fingerprint: ''
+    tenancy: ''
+    region: ''
+    key_file: ''
     
 node_templates:
 
@@ -22,10 +22,10 @@ node_templates:
       bmc_config: *bmc_config
       public_key_file: ~/.ssh/dfilppi-dc.key.pub
       name: test_server
-      image_id: ocid1.image.oc1.phx.aaaaaaaarfjsb62lmbim56opxkrvu45dk4yhltlssxp5cx73fwh2xzxb76na
-      instance_shape: BM.Standard1.36
-      compartment_id: ocid1.compartment.oc1..aaaaaaaajsml6kkyoa4b7rp3rrrdjxw5s5j4fgmqyao5zsdi574rfzihjmma
-      availability_domain: vNkz:PHX-AD-2
+      image_id: ''
+      instance_shape: ''
+      compartment_id: ''
+      availability_domain: ''
     relationships:
       - type: cloudify.oraclebmc.relationships.instance_connected_to_subnet
         target: subnet
@@ -36,7 +36,7 @@ node_templates:
       bmc_config: *bmc_config
       name: some_network
       cidr_block: 10.10.0.0/16
-      compartment_id: ocid1.compartment.oc1..aaaaaaaajsml6kkyoa4b7rp3rrrdjxw5s5j4fgmqyao5zsdi574rfzihjmma
+      compartment_id: ''
           
   subnet:
     type: cloudify.oraclebmc.nodes.Subnet
@@ -44,8 +44,8 @@ node_templates:
       bmc_config: *bmc_config
       name: some_subnet
       cidr_block: 10.10.10.0/24  
-      compartment_id: ocid1.compartment.oc1..aaaaaaaajsml6kkyoa4b7rp3rrrdjxw5s5j4fgmqyao5zsdi574rfzihjmma
-      availability_domain: vNkz:PHX-AD-2
+      compartment_id: ''
+      availability_domain: ''
     relationships:
       - type: cloudify.oraclebmc.relationships.subnet_in_network
         target: network
@@ -55,7 +55,7 @@ node_templates:
     properties:
       bmc_config: *bmc_config
       name: some_gateway
-      compartment_id: ocid1.compartment.oc1..aaaaaaaajsml6kkyoa4b7rp3rrrdjxw5s5j4fgmqyao5zsdi574rfzihjmma
+      compartment_id: ''
       route_cidrs:
         - 0.0.0.0/0
     relationships:
