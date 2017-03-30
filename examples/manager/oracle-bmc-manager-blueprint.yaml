@@ -3,7 +3,7 @@ tosca_definitions_version: cloudify_dsl_1_3
 imports:
   - http://www.getcloudify.org/spec/cloudify/3.4.1/types.yaml
   - http://www.getcloudify.org/spec/fabric-plugin/1.4.1/plugin.yaml
-  - http://www.github.com/dfilppi/cloudify-oraclebmc-plugin/raw/0.1/plugin.yaml
+  - http://www.github.com/cloudify-incubator/cloudify-oraclebmc-plugin/raw/0.1/plugin.yaml
   - types/manager-types.yaml
 
 inputs:
@@ -14,51 +14,39 @@ inputs:
 
   bmc_user:
     type: string
-    default: ocid1.user.oc1..aaaaaaaams6ntkm4d4f7fy55uas2u7jtgzf3zwoebmukrovxygpuc3lef3kq
 
   bmc_tenancy:
     type: string
-    default: ocid1.tenancy.oc1..aaaaaaaahkcwqbdj6em7q33sd4ahxxdwinwnx6pmucuh3n4nnhu3y4zn23ha
 
   bmc_fingerprint:
     type: string
-    default: 42:15:9c:16:0e:34:bc:a3:be:83:31:fb:6c:9f:42:93
 
   bmc_api_keyfile:
     type: string
-    default: ~/.ssh/bmcs_api_key
 
   bmc_region:
     type: string
-    default: us-phoenix-1
 
   bmc_compartment_id:
     type: string
-    default: ocid1.compartment.oc1..aaaaaaaajsml6kkyoa4b7rp3rrrdjxw5s5j4fgmqyao5zsdi574rfzihjmma
 
   bmc_availability_domain:
     type: string
-    default: vNkz:PHX-AD-2
 
   ssh_key_filename:
     type: string
-    default: ~/.ssh/dfilppi-dc.key
 
   ssh_public_key_file:
     type: string
-    default: ~/.ssh/dfilppi-dc.key.pub
 
   agent_private_key_file:
     type: string
-    default: ~/.ssh/dfilppi-dc.key
 
   agent_public_key_file:
     type: string
-    default: ~/.ssh/dfilppi-dc.key.pub
 
   manager_server_name:
     type: string
-    default: 'cloudify-manager-server'
 
   ssh_user:
     type: string
@@ -71,7 +59,6 @@ inputs:
   image_id:
     type: string
     description: must have firewalld disabled
-    default: ocid1.image.oc1.phx.aaaaaaaao75ahxn6hdh6lkzgiajvrljb5ntwtimm5ehxvrp7jert2bxt4xmq
 
   instance_shape:
     type: string

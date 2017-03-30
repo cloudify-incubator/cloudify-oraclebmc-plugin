@@ -1,4 +1,4 @@
-## cloudify-oraclebmc-plugin
+# cloudify-oraclebmc-plugin
 A plugin for the Oracle Bare Metal Cloud
 
 - Tested with the Python oraclebmc package version 1.1.2
@@ -94,4 +94,25 @@ Used to attach the subnet to a network
 * `cloudify.oraclebmc.relationships.gateway_connected_to_network`
 
 Used to attach the gateway to a network
+
+
+## Oracle Bare Metal Cloud Manager
+
+In `examples/manager` there is a Cloudify manager blueprint for the Oracle Bare Metal Cloud. 
+
+### Requirements
+
+* Centos 7 image with Firewalld disabled
+* Minimum 8GB RAM
+
+### Operation
+
+* Install the Cloudify CLI on a host with cloud API access
+* Get local copies of the blueprint and inputs file.
+* Edit the inputs.  Parameter descriptions are in the inputs file.
+* Run `cfy bootstrap --install-plugins -p <blueprint-filename> -i <inputs-filename>`
+
+### Limitations
+
+* Cloudify 3.4.1 support
 
