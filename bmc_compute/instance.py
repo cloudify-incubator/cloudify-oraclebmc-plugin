@@ -14,6 +14,7 @@
 #    * limitations under the License.
 
 import sys
+import collections
 
 # Third-party Imports
 import oraclebmc
@@ -27,8 +28,35 @@ RUNNING_STATE = 'RUNNING'
 TERMINATED_STATE = "TERMINATED"
 
 
+# TODO: This may also be a util.
+def merge_config_node_props_kwargs(config_name, from_ctx, from_kw):
+    props_config = from_ctx.get(config_name)
+    kwarg_config = from_kw.get(config_name)
+    return dict_update(kwarg_config, props_config)
+
+
+# TODO: This should be put in utils.
+def dict_update(orig, updates):
+    '''Recursively merges two objects
+       Copied from cloudify-azure-plugin.
+    '''
+    for key, val in updates.iteritems():
+        if isinstance(val, collections.Mapping):
+            orig[key] = dict_update(orig.get(key, {}), val)
+        else:
+            orig[key] = updates[key]
+    return orig
+
+
+def update_config(payload, data):
+    for key, value in data:
+        setattr(payload, key, value)
+    return payload
+
+
 @operation
 def validate_node(**_):
+    # Deprecated from Cloudify 4.0.
     return True
 
 
@@ -43,29 +71,46 @@ def _get_subnets(ctx):
 
 @operation
 def launch_instance(**kwargs):
+    """
+    Launch an instance.
+    Create the LaunchInstanceDetails object, which is primarily
+    populated by the launch_instance_details node property,
+    but may be overridden if provided in kwargs.
+
+    :param kwargs:
+    :return:
+    """
 
     ctx.logger.info("Launching instance")
-    subnet_ids = _get_subnets(ctx)
-    launch_config = oraclebmc.core.models.LaunchInstanceDetails()
-    launch_config.availability_domain = \
-        ctx.node.properties['availability_domain']
-    launch_config.compartment_id = \
-        ctx.node.properties['compartment_id']
-    launch_config.display_name = \
-        ctx.node.properties['name']
-    launch_config.image_id = \
-        ctx.node.properties['image_id']
-    launch_config.shape = \
-        ctx.node.properties['instance_shape']
-    launch_config.subnet_id = subnet_ids[0]
-    launch_config.metadata = ({'ssh_authorization_keys':
-                               ctx.node.properties['public_key_file']})
 
-    compute_client = None
+    # Get launch_instance_details
+    # from node properties and kwargs then recursively merge
+    launch_instance_details = \
+        merge_config_node_props_kwargs('launch_instance_details',
+                                       ctx.node.properties,
+                                       kwargs)
+
+    # instantiate LaunchInstanceDetails object
+    launch_config = oraclebmc.core.models.LaunchInstanceDetails()
+    launch_config = update_config(launch_config,
+                                  launch_instance_details)
+
+    # Attempt to ensure that there is a connected subnet.
+    # TODO: decide if we care if a user provides multiple subnet relationships.
+    subnet_ids = _get_subnets(ctx)
+    if not getattr(launch_config, 'subnet_id') and subnet_ids:
+        launch_config.subnet_id = subnet_ids[0]
+
+    # Get client_config
+    # from node properties and kwargs then recursively merge
+    client_config = \
+        merge_config_node_props_kwargs('bmc_config',
+                                       ctx.node.properties,
+                                       kwargs)
 
     try:
-        compute_client = oraclebmc.core.ComputeClient(
-            ctx.node.properties['bmc_config'])
+        compute_client = \
+            oraclebmc.core.ComputeClient(client_config)
         response = compute_client.launch_instance(launch_config)
     except:
         ctx.logger.error("Exception:{}".format(sys.exc_info()[0]))
