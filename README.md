@@ -109,6 +109,7 @@ In `examples/manager` there is a Cloudify manager blueprint for the Oracle Bare 
 
 * Install the Cloudify CLI on a host with cloud API access
 * Get local copies of the blueprint and inputs file.
+* Clone the `cloudify-manager-blueprints` project (3.4.1) and put blueprint and inputs in base directory.
 * Edit the inputs.  Parameter descriptions are in the inputs file.
 * Run `cfy bootstrap --install-plugins -p <blueprint-filename> -i <inputs-filename>`
 
