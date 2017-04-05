@@ -1,7 +1,3 @@
-##################################################################################
-# Cloudify AWS EC2 built in types and plugins definitions.
-##################################################################################
-
 plugins:
   bmc:
     executor: central_deployment_agent
@@ -44,11 +40,68 @@ data_types:
         required: true
         default: ''
 
+  cloudify.datatypes.bmc.LaunchInstanceDetails:
+    # based on: http://oracle-bare-metal-cloud-services-python-sdk.readthedocs.io/en/latest/api/index.html#oraclebmc.core.models.LaunchInstanceDetails
+    properties:
+      availability_domain:
+        description: The Availability domain of the instance.
+        type: string
+        required: true
+      compartment_id:
+        description: >
+          The OCID of the compartment.
+        type: string
+        required: true
+      display_name:
+        description: >
+          A user-friendly name. Does not have to be unique, and it's changeable.
+          # TODO:
+          # The API requires this. Cloudify will generate if not provided.
+          # After that toggle required to false.
+        type: string
+        required: true.
+      image_id:
+        description: >
+          The OCID of the image used to boot the instance.
+          # TODO:
+          # In the future, when custom images are supported, this can be provided via relationship to an image node.
+        type: string
+        required: true
+      ipxe_script:
+        description: >
+          For more information about iPXE, see http://ipxe.org.
+          See also: https://github.com/oracle/bmcs-python-sdk/blob/v1.1.1/oraclebmc/core/models/launch_instance_details.py#L179.
+        type: string
+        required: false
+      metadata:
+        description: >
+          https://cloudinit.readthedocs.org/en/latest/
+          http://cloudinit.readthedocs.org/en/latest/topics/format.html
+          See also: https://github.com/oracle/bmcs-python-sdk/blob/v1.1.1/oraclebmc/core/models/launch_instance_details.py#L210.
+        default: {'': ''}
+      shape:
+        description: >
+          The shape of an instance.
+          The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
+        type: string
+        required: true
+      subnet_id:
+        description: >
+          The OCID of the subnet.
+          This can be overriden by providing a `cloudify.oraclebmc.relationships.instance_connected_to_subnet` relationship to a `cloudify.oraclebmc.nodes.Subnet` node.
+        type: string
+        required: false
+
 node_types:
 
   cloudify.oraclebmc.nodes.Instance:
     derived_from: cloudify.nodes.Compute
     properties:
+      bmc_config:
+        description: >
+          A dictionary of values to pass to authenticate with the AWS API.
+        type: cloudify.datatypes.bmc.Config
+        required: false
       use_external_resource:
         description: >
           Indicate whether the resource exists or if Cloudify should create the resource,
@@ -62,41 +115,27 @@ node_types:
           Otherwise it is null
         type: string
         required: false
-      public_key_file:
+      launch_instance_details:
         description: >
-          Authorized SSH key for host
-        type: string
+          A dictionary in the cloudify.datatypes.bmc.LaunchInstanceDetails format.
+          Must include:
+            * availability_zone
+            * compartment_id
+            * image_id
+            * shape
+          Should include:
+            * metadata (a dictionary with the public_key_file key.)
+            * subnet_id (if not provided in a relationship)
+          Example:
+            availability_zone: ''
+            compartment_id: ''
+            image_id: ''
+            shape: ''
+            metadata:
+              public_key_file: ~/.ssh/id_rsa.pub
+            subnet_id: ''
+        type: cloudify.datatypes.bmc.LaunchInstanceDetails
         required: true
-      name:
-        description: >
-          Optional field if you want to add a specific name to the instance.
-        default: ''
-        required: false
-      image_id:
-        description: >
-          The OCID of the AMI image in your Amazon account.
-        type: string
-        required: true
-      instance_shape:
-        description: >
-          The instance size/compute.  Shape OCID
-        type: string
-        required: true
-      bmc_config:
-        description: >
-          A dictionary of values to pass to authenticate with the AWS API.
-        type: cloudify.datatypes.bmc.Config
-        required: false
-      compartment_id:
-        description: >
-          The compartment OCID for the instance.  Required when not in managed context
-        type: string
-        required: false
-      availability_domain:
-        description: >
-          The availability domain OCID.  Required when not in managed context
-        type: string
-        required: false
     interfaces:
       cloudify.interfaces.lifecycle:
         configure:
@@ -117,6 +156,7 @@ node_types:
               description: Polling interval until the server is terminated in seconds
               type: integer
               default: 10
+# Deprecated in Cloudify 4.0
 #      cloudify.interfaces.validation:
 #        creation:
 #          implementation: bmc.ec2.instance.creation_validation
